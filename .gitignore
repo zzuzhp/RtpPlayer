@@ -1,0 +1,61 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.d
+*.o.d
+*.a
+*.so
+*.obj
+*.apk
+*.ap_
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# Generated files
+bin/
+gen/
+
+# Local configuration
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+.settings/
+
+# Android Studio
+build/
+.gradle
+.idea
+*.iml
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

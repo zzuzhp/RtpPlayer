@@ -1,0 +1,14 @@
+prefix=/Users/zhaopeng/RtpPlayer/ffmpeg/libs/armeabi-v7a
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libavdevice
+Description: FFmpeg device handling library
+Version: 57.2.100
+Requires: libavformat >= 57.60.100, libavcodec >= 57.68.100, libavutil >= 55.43.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavdevice -lm -lz -pthread
+Libs.private: 
+Cflags: -I${includedir}
