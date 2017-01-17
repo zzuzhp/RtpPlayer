@@ -1,4 +1,4 @@
-ANDROID_NDK=$USER_HOME/android-env/android-ndk-r10d
+ANDROID_NDK=/Users/$(whoami)/android-env/android-ndk-r10d/
 PREFIX=`pwd`/libs/armeabi-v7a
 
 ./configure --prefix=$PREFIX \
@@ -11,5 +11,5 @@ PREFIX=`pwd`/libs/armeabi-v7a
 make clean
 make install
 
-cp lib/armeabi-v7a/lib/libvpx.a $PREFIX
-rm -rf lib
+cp $PREFIX/lib/libvpx.a $PREFIX
+rm -rf $PREFIX/lib/ $PREFIX/include/
