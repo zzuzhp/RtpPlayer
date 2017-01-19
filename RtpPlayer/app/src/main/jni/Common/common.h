@@ -3,9 +3,9 @@
 
 #include "Common/Log.h"
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cstdio>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////

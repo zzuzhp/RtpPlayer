@@ -3,6 +3,7 @@ PRO_PRO_LIB_DIR := $(LOCAL_PATH)/../../../../../pro/bin/
 PRO_PRO_INC_DIR := $(LOCAL_PATH)/../../../../../pro/inc/
 PRO_DEC_INC_DIR := $(LOCAL_PATH)/../../../../../MediaCodec/jni/
 PRO_DEC_LIB_DIR := $(LOCAL_PATH)/../../../../../MediaCodec/libs/$(TARGET_ARCH_ABI)/
+PRO_ASIO_INC_DIR:= $(LOCAL_PATH)/../../../../../
 
 #################### prebuild librtp_framework.so ####################
 include $(CLEAR_VARS)
@@ -54,11 +55,16 @@ LOCAL_SRC_FILES  := RtpPlayer_jni.cc                        \
                     Renders/VideoOut.cc                     \
                     Depacketizers/RtpDepacketizer.cc        \
                     Depacketizers/RtpDepacketizerH264.cc    \
-                    Depacketizers/RtpDepacketizerVp8.cc
+                    Depacketizers/RtpDepacketizerVp8.cc     \
+                    Networks/Session.cc                     \
+                    Networks/UdpSession.cc                  \
+                    Networks/UdpClient.cc                   \
+                    Networks/UdpServer.cc                   \
+                    Rtp/RtpPacket.cc
 
 LOCAL_CFLAGS     :=
 LOCAL_LDLIBS     := -llog -lGLESv2 -lEGL -lOpenSLES -landroid
-LOCAL_C_INCLUDES += $(PRO_PRO_INC_DIR) $(PRO_DEC_INC_DIR)
+LOCAL_C_INCLUDES += $(PRO_PRO_INC_DIR) $(PRO_DEC_INC_DIR) $(PRO_ASIO_INC_DIR)
 LOCAL_SHARED_LIBRARIES := librtp_framework libmediacodec
 LOCAL_STATIC_LIBRARIES := libpro_util
 LOCAL_DISABLE_FORMAT_STRING_CHECKS  := true

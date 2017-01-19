@@ -277,11 +277,11 @@ AudioOut::open_device(int sample_rate, int channels, int bits_per_sample)
     SLDataFormat_PCM format_pcm =
     {
         SL_DATAFORMAT_PCM,              ///< formatType
-        channels,                       ///< numChannels
+        (SLuint32)channels,             ///< numChannels
         sr,                             ///< samplesPerSec
         bits,                           ///< bitsPerSample
         bits,                           ///< containerSize
-        speakers,                       ///< channelMask
+        (SLuint32)speakers,             ///< channelMask
         SL_BYTEORDER_LITTLEENDIAN       ///< endianness
     };
 

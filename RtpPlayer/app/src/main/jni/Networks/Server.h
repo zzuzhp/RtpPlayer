@@ -1,0 +1,28 @@
+#ifndef ___SERVER_H___
+#define ___SERVER_H___
+
+#include "Dispatcher.h"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////
+
+class Server : public Dispatcher
+{
+public:
+
+    virtual ~Server() {}
+
+    virtual void accept(uint16_t port) = 0;
+
+protected:
+
+    Server(asio::io_service & io) : Dispatcher(io)
+    {
+
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////
+
+#endif ///< ___SERVER_H___
