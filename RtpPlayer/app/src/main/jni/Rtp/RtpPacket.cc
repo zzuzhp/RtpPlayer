@@ -9,7 +9,7 @@
 ////
 
 RtpPacket *
-RtpPacket::create_instance(const void * payload, uint16_t size)
+RtpPacket::create_instance(RTP_HEADER header, const void * payload, uint16_t size)
 {
     RtpPacket * packet = NULL;
     if (payload == NULL || size == 0 || size > MAX_PAYLOAD_BYTES)
@@ -18,7 +18,7 @@ RtpPacket::create_instance(const void * payload, uint16_t size)
     }
 
     packet = new(std::nothrow)RtpPacket();
-    if (!packet || !packet->init(payload, size))
+    if (!packet || !packet->init(header, payload, size))
     {
         delete packet;
         packet = NULL;
@@ -146,7 +146,7 @@ RtpPacket::parse(const char   * buffer,
 }
 
 bool
-RtpPacket::init(const void * payload, uint16_t size)
+RtpPacket::init(RTP_HEADER header, const void * payload, uint16_t size)
 {
     m_packet = (RTP_PACKET *)new(std::nothrow) char[sizeof(RTP_PACKET) + size - 1];
     if (!m_packet)
@@ -156,7 +156,7 @@ RtpPacket::init(const void * payload, uint16_t size)
 
     memset(m_packet, 0, sizeof(RTP_PACKET));
 
-    m_packet->hdr.v = 2;
+    m_packet->hdr = header;
 
     if (payload != NULL)
     {

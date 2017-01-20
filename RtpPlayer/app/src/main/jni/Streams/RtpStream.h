@@ -1,11 +1,12 @@
 #ifndef ___RTPSTREAM_H___
 #define ___RTPSTREAM_H___
 
-#include "rtp_framework.h"
 #include "pro_stat.h"
 #include "pro_functor_command_task.h"
 #include "Common/AVModule.h"
 #include "Common/common.h"
+#include "Rtp/RtpPacket.h"
+#include "Rtp/RtpClient.h"
 
 class RtpStream;
 class RtpStreamObserver
@@ -18,7 +19,7 @@ public:
 ////
 
 class RtpStream : public AVModule,
-                  public IRtpSessionObserver
+                  public RtpClientObserver
 {
 public:
 
@@ -32,12 +33,12 @@ protected:
 
     RtpStream(RtpStreamObserver * observer, const char * name, int evt_mask = (int)EVENT_ALL);
 
-    unsigned long PRO_STDCALL AddRef()
+    unsigned long AddRef()
     {
         return RefCount::AddRef();
     }
 
-    unsigned long PRO_STDCALL Release()
+    unsigned long Release()
     {
         return RefCount::Release();
     }
@@ -46,15 +47,16 @@ protected:
 
     bool set_media(RTP_MEDIA_TYPE media, int payload_type, int port);
 
-    void PRO_STDCALL OnRecvSession(IRtpSession * session, IRtpPacket * packet);
-
-    void PRO_STDCALL OnOkSession(IRtpSession * session);
-
-    void PRO_STDCALL OnSendSession(IRtpSession * session, bool packetErased);
-
-    void PRO_STDCALL OnCloseSession(IRtpSession * session, long errorCode);
-
     void send_frame(MediaFrame * frame);
+
+    /* !
+     * RtpClientObserver
+     */
+    void on_rtp_packet(RtpClient * client, IRtpPacket * packet);
+
+    void on_client_opened(RtpClient * client);
+
+    void on_client_closed(RtpClient * client);
 
 private:
 
@@ -62,9 +64,7 @@ private:
 
 protected:
 
-    IProReactor                 * m_reactor;
-
-    IRtpSession                 * m_session;
+    RtpClient                   * m_client;
 
     RTP_MEDIA_TYPE                m_media;
 

@@ -13,13 +13,13 @@ public:
 
     virtual ~RefCount(){}
 
-    unsigned long PRO_STDCALL AddRef()
+    unsigned long AddRef()
     {
         unsigned long ulref = CProRefCount::AddRef();
         return ulref;
     }
 
-    unsigned long PRO_STDCALL Release()
+    unsigned long Release()
     {
         unsigned long ulref = CProRefCount::Release();
         return ulref;

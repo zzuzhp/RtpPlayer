@@ -19,7 +19,7 @@ public:
     void accept(uint16_t port);
 
     template <typename T, typename Y>
-    void connect_accept_event_handler(T handler, Y * obj)
+    void connect_accept_handler(T handler, Y * obj)
     {
         m_accept_handler = std::bind(handler, obj, std::placeholders::_1);
     }

@@ -14,7 +14,6 @@ public class RtpPlayer
 
     static
     {
-        System.loadLibrary("rtp_framework");
         System.loadLibrary("mediacodec");
         System.loadLibrary("rtpplayer");
     }

@@ -39,7 +39,7 @@ Session::on_read(const asio::error_code & err, size_t bytes_transferred)
     if (err == asio::error::eof ||
         (m_read_complete_handler != nullptr && m_buffer_size > 0 && bytes_transferred < m_buffer_size))
     {
-        m_read_complete_handler();
+        m_read_complete_handler(m_buffer_size, bytes_transferred);
     }
 
     m_response.consume(m_response.size());

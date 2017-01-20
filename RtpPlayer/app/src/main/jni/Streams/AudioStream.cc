@@ -45,9 +45,9 @@ AudioStream::on_rtp_packet(IRtpPacket * packet, bool discontinuous)
     }
 
     frame.type              = media_type();
-    frame.data              = (unsigned char *)packet->GetPayloadBuffer();
-    frame.len               = packet->GetPayloadSize();
-    frame.pts               = packet->GetTimeStamp();
+    frame.data              = (unsigned char *)packet->payload();
+    frame.len               = packet->payload_size();
+    frame.pts               = packet->timestamp();
     frame.flags             = 0;
     frame.rtp_payload_type  = rtp_payload_type();
     frame.packets           = 1;

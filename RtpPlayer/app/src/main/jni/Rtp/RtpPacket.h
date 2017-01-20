@@ -47,17 +47,61 @@ struct RTP_PACKET
 /////////////////////////////////////////////////////////////////////////////
 ////
 
-class RtpPacket : public RefCount
+class IRtpPacket
 {
 public:
 
-    static RtpPacket * create_instance(const void * payload, uint16_t size);
+    virtual unsigned long AddRef() = 0;
+
+    virtual unsigned long Release() = 0;
+
+    virtual void set_marker(bool m) = 0;
+
+    virtual bool marker() const = 0;
+
+    virtual void set_payload_type(char pt) = 0;
+
+    virtual char payload_type() const = 0;
+
+    virtual void set_sequence(uint16_t seq) = 0;
+
+    virtual uint16_t sequence() const = 0;
+
+    virtual void set_timestamp(uint32_t ts) = 0;
+
+    virtual uint32_t timestamp() const = 0;
+
+    virtual void set_ssrc(uint32_t ssrc) = 0;
+
+    virtual uint32_t ssrc() const = 0;
+
+    virtual char * payload() = 0;
+
+    virtual uint16_t payload_size() const = 0;
+};
+
+class RtpPacket : public IRtpPacket,
+                  public RefCount
+{
+public:
+
+    static RtpPacket * create_instance(RTP_HEADER header, const void * payload, uint16_t size);
 
     static bool parse(const char   * buffer,
                       uint16_t       size,
                       RTP_HEADER   & hdr, //// network byte order
                       const char  *& payload,
                       uint16_t     & payload_size);
+
+    unsigned long AddRef()
+    {
+        return RefCount::AddRef();
+    }
+
+    unsigned long Release()
+    {
+        return RefCount::Release();
+    }
 
     void set_marker(bool m);
 
@@ -89,7 +133,7 @@ private:
 
     virtual ~RtpPacket();
 
-    bool init(const void * payload, uint16_t size);
+    bool init(RTP_HEADER header, const void * payload, uint16_t size);
 
 private:
 

@@ -54,7 +54,6 @@ void
 RtpPlayer::tear()
 {
     remove_video();
-
     remove_audio();
 
     if (m_av_sync)

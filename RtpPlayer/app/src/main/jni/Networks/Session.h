@@ -25,7 +25,7 @@ public:
     template <typename T, typename Y>
     void connect_read_complete_handler(T handler, Y * obj)
     {
-        m_read_complete_handler = std::bind(handler, obj);
+        m_read_complete_handler = std::bind(handler, obj, std::placeholders::_1, std::placeholders::_2);
     }
 
     template <typename T, typename Y>

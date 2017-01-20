@@ -5,16 +5,6 @@ PRO_DEC_INC_DIR := $(LOCAL_PATH)/../../../../../MediaCodec/jni/
 PRO_DEC_LIB_DIR := $(LOCAL_PATH)/../../../../../MediaCodec/libs/$(TARGET_ARCH_ABI)/
 PRO_ASIO_INC_DIR:= $(LOCAL_PATH)/../../../../../
 
-#################### prebuild librtp_framework.so ####################
-include $(CLEAR_VARS)
-LOCAL_MODULE := rtp_framework
-
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
-    LOCAL_SRC_FILES := $(PRO_PRO_LIB_DIR)librtp_framework.so
-endif
-
-include $(PREBUILT_SHARED_LIBRARY)
-
 #################### prebuild libpro_util.a ####################
 include $(CLEAR_VARS)
 LOCAL_MODULE := pro_util
@@ -60,12 +50,13 @@ LOCAL_SRC_FILES  := RtpPlayer_jni.cc                        \
                     Networks/UdpSession.cc                  \
                     Networks/UdpClient.cc                   \
                     Networks/UdpServer.cc                   \
-                    Rtp/RtpPacket.cc
+                    Rtp/RtpPacket.cc                        \
+                    Rtp/RtpClient.cc
 
 LOCAL_CFLAGS     :=
 LOCAL_LDLIBS     := -llog -lGLESv2 -lEGL -lOpenSLES -landroid
 LOCAL_C_INCLUDES += $(PRO_PRO_INC_DIR) $(PRO_DEC_INC_DIR) $(PRO_ASIO_INC_DIR)
-LOCAL_SHARED_LIBRARIES := librtp_framework libmediacodec
+LOCAL_SHARED_LIBRARIES := libmediacodec
 LOCAL_STATIC_LIBRARIES := libpro_util
 LOCAL_DISABLE_FORMAT_STRING_CHECKS  := true
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true

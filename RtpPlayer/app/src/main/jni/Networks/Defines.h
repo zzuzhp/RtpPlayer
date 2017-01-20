@@ -23,7 +23,7 @@ typedef std::shared_ptr<asio::ip::udp::socket>      UdpSocketRef;
 
 typedef std::function<void (std::string, size_t)>   net_error;
 typedef std::function<void (const char *, size_t)>  net_read;
-typedef std::function<void ()>                      net_read_complete;
+typedef std::function<void (size_t, size_t)>        net_read_complete;
 typedef std::function<void (size_t)>                net_write;
 typedef std::function<void ()>                      net_resolve;
 typedef std::function<void (UdpSessionRef)>         net_connect;

@@ -61,11 +61,11 @@ VideoStream::on_rtp_packet(IRtpPacket * packet, bool discontinuous)
     }
 #endif
     /* parse the packet */
-    status = m_depacketizer->parse((unsigned char *)packet->GetPayloadBuffer(),
-                                   packet->GetPayloadSize(),
-                                   packet->GetMarker(),
-                                   packet->GetTimeStamp(),
-                                   packet->GetPayloadType(),
+    status = m_depacketizer->parse((unsigned char *)packet->payload(),
+                                   packet->payload_size(),
+                                   packet->marker(),
+                                   packet->timestamp(),
+                                   packet->payload_type(),
                                    &frame);
 
     if (DEPACKETIZER_FRAME == status)
