@@ -1,4 +1,4 @@
-a simple android rtp player
+An android rtp player
 
 RtpPlayer demostrates a simple rtp stream player on android.
 
@@ -14,23 +14,24 @@ currently the player supports the following codecs:
 Projects
 --------
 
-the solution include 7 projects:
+the solution incorporates 8 projects:
 
-1. RtpPlayer
-   this is an AndroidStudio based project, which implements a simple rtp player.
-2. MediaCodec
-   this is a A/V codec wrapper
-3. libvpx
-   this is the vp8 codec 
-4. libx264
-   this is the h264 encoder
-5. opus
-   this is the opus codec
-6. ffmpeg
-   this is the h264 decoder
-7. pro
-   this is the network framework(receives the rtp streams) as well as some platform api wrapper(locks and threads etc.).
-   'pro' is not open-sourced, only bin files are available.
+- [x] RtpPlayer    
+        -- the rtp player
+- [x] MediaCodec    
+        -- A/V codec wrapper
+- [x] libvpx    
+        -- the vp8 codec
+- [x] libx264   
+        -- the h264 encoder
+- [x] opus  
+        -- the opus codec
+- [x] ffmpeg    
+        -- the h264 decoder
+- [x] pro   
+        -- close-sourced platform api wrapper(locks and threads etc.)
+- [x] asio  
+        -- the asio library(http://think-async.com/)
 
 ScreenShots
 -----------
