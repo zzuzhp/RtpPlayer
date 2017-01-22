@@ -91,7 +91,9 @@ RtpSession::destroy_stream(RtpStream * stream)
     std::vector<RtpStream *>::iterator itr = std::find(m_streams.begin(), m_streams.end(), stream);
     if (itr != m_streams.end())
     {
+        RP_FOOTPRINT
         delete *itr;
+        RP_FOOTPRINT
         m_streams.erase(itr);
     }
 }

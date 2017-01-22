@@ -16,7 +16,7 @@ typedef std::shared_ptr<UdpServer>                  UdpServerRef;
 typedef std::shared_ptr<asio::ip::udp::resolver>    UdpResolverRef;
 typedef std::shared_ptr<UdpSession>                 UdpSessionRef;
 typedef std::shared_ptr<asio::ip::udp::socket>      UdpSocketRef;
-
+typedef std::shared_ptr<asio::io_service>           IoServiceRef;
 /*!
  * Network callbacks
  */

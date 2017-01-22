@@ -16,7 +16,8 @@ UdpSession::UdpSession(asio::io_service & io) : Session(io)
 
 UdpSession::~UdpSession()
 {
-
+    RP_FOOTPRINT
+    m_socket->close();
 }
 
 void

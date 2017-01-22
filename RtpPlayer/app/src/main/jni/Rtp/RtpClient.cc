@@ -21,7 +21,9 @@ RtpClient::~RtpClient()
 bool
 RtpClient::build(RtpClientObserver * observer, uint16_t port)
 {
-    m_server = UdpServer::create_instance(m_service);
+    m_service.reset(new asio::io_service());
+
+    m_server = UdpServer::create_instance(*m_service);
     if (m_server == nullptr)
     {
         RP_LOG_E("UdpServer create failed.");
@@ -44,9 +46,19 @@ void
 RtpClient::tear()
 {
     m_exit = true;
-    m_service.stop();
+    m_service->stop();
 
     Wait();
+
+    if (m_observer)
+    {
+        m_observer->on_client_closed(this);
+    }
+
+    /* manually destroy the pointers in the order we want */
+    m_server.reset();
+    m_udp_session.reset();
+    m_service.reset();
 }
 
 void
@@ -97,7 +109,7 @@ void
 RtpClient::on_network_accept(UdpSessionRef session)
 {
     /* network ready */
-    RP_LOG_I("on_network_accept");
+    RP_LOG_E("on_network_accept");
 
     session->connect_read_handler(&RtpClient::on_network_read, this);
     session->connect_read_complete_handler(&RtpClient::on_network_read_complete, this);
@@ -125,12 +137,12 @@ RtpClient::read()
 void
 RtpClient::Svc()
 {
-    RP_LOG_E("RtpClient::Svc() in");
+    RP_LOG_D("RtpClient::Svc() in: %d(%x)", pthread_self(), this);
     /* run the service */
-    asio::io_service::work work(m_service);
-    m_service.run();
+    asio::io_service::work work(*m_service);
+    m_service->run();
 
-    RP_LOG_E("RtpClient::Svc() out");
+    RP_LOG_D("RtpClient::Svc() out");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

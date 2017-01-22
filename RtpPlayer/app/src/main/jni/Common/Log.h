@@ -276,6 +276,8 @@ void RP_LOG_DEF (std::string location, LOGLevel level, const char * fmt, ...)
     #define RP_LOG_F(...)   ((void)0)
 #endif
 
+#define RP_FOOTPRINT        RP_LOG_D("here i am!");
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 

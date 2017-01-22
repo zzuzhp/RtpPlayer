@@ -53,8 +53,11 @@ fail:
 void
 RtpPlayer::tear()
 {
+    RP_FOOTPRINT
     remove_video();
+    RP_FOOTPRINT
     remove_audio();
+    RP_FOOTPRINT
 
     if (m_av_sync)
     {

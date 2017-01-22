@@ -17,7 +17,7 @@ UdpServer::UdpServer(asio::io_service & io) : Server(io),
 
 UdpServer::~UdpServer()
 {
-
+    RP_FOOTPRINT
 }
 
 void

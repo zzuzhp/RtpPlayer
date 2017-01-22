@@ -57,7 +57,7 @@ private:
 
     UdpServerRef            m_server;
 
-    asio::io_service        m_service;
+    IoServiceRef            m_service;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
