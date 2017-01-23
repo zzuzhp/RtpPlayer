@@ -44,6 +44,7 @@ Java_zhaopeng_com_rtpplayer_rtpplayer_RtpPlayer_create_1rtp_1player(JNIEnv  * en
 {
     /* initialize the logger before all log prints */
     create_logger<LoggerSystem>();
+    create_logger<LoggerFile>();
 
     ANativeWindow * window = ANativeWindow_fromSurface(env, surface);
     if (!window)

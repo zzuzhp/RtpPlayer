@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <vector>
+#include <fstream>
 #include <android/log.h>
 
 #define TAG "RTPPLAYER"
@@ -100,6 +101,32 @@ public:
     {
 
     }
+};
+
+class LoggerFile : public Logger
+{
+public:
+
+    LoggerFile()
+    {
+        file.open("/sdcard/RPLog.log", std::ofstream::out | std::ofstream::trunc);
+        if (!file.is_open())
+        {
+            /* file open failed */
+        }
+    }
+
+    void write (const LOGMetadata & meta, const std::string & text)
+    {
+        std::stringstream ss;
+        write_default(ss, meta, text);
+
+        file << ss.str().c_str();
+    }
+
+private:
+
+    std::ofstream   file;
 };
 
 class LoggerSystem : public Logger
