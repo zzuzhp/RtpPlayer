@@ -2,6 +2,7 @@
 #define ___LOG_H___
 
 #include "pro_time_util.h"
+#include "pro_thread_mutex.h"
 #include "Common/Utils.h"
 
 #include <sstream>
@@ -90,6 +91,10 @@ protected:
 private:
 
     bool m_timeStamp_enabled;
+
+protected:
+
+    CProThreadMutex m_lock;
 };
 
 /* prints log messages in the application console window. */
@@ -99,7 +104,7 @@ public:
 
     void write(const LOGMetadata & meta, const std::string & text)
     {
-
+        CProThreadMutexGuard mon(m_lock);
     }
 };
 
@@ -121,7 +126,11 @@ public:
         std::stringstream ss;
         write_default(ss, meta, text);
 
-        file << ss.str().c_str();
+        {
+            CProThreadMutexGuard mon(m_lock);
+
+            file << ss.str().c_str();
+        }
     }
 
 private:
@@ -149,7 +158,11 @@ public:
             case LOG_LEVEL_FATAL:   prio = ANDROID_LOG_FATAL;   break;
         }
 
-        __android_log_print(prio, TAG, ss.str().c_str());
+        {
+            CProThreadMutexGuard mon(m_lock);
+
+            __android_log_print(prio, TAG, ss.str().c_str());
+        }
     }
 };
 
