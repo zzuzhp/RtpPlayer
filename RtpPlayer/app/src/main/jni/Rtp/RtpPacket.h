@@ -51,9 +51,9 @@ class IRtpPacket
 {
 public:
 
-    virtual unsigned long AddRef() = 0;
+    virtual unsigned long add_ref() = 0;
 
-    virtual unsigned long Release() = 0;
+    virtual unsigned long release() = 0;
 
     virtual void set_marker(bool m) = 0;
 
@@ -93,14 +93,14 @@ public:
                       const char  *& payload,
                       uint16_t     & payload_size);
 
-    unsigned long AddRef()
+    unsigned long add_ref()
     {
-        return RefCount::AddRef();
+        return RefCount::add_ref();
     }
 
-    unsigned long Release()
+    unsigned long release()
     {
-        return RefCount::Release();
+        return RefCount::release();
     }
 
     void set_marker(bool m);

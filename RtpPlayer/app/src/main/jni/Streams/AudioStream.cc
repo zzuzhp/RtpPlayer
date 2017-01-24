@@ -1,7 +1,19 @@
 #include "Streams/AudioStream.h"
+#include <new>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
+
+AudioStream *
+AudioStream::create_instance(RtpStreamObserver * observer)
+{
+    if (!observer)
+    {
+        return NULL;
+    }
+
+    return new(std::nothrow) AudioStream(observer);
+}
 
 AudioStream::AudioStream(RtpStreamObserver * observer) : RtpStream(observer, "audio stream")
 {

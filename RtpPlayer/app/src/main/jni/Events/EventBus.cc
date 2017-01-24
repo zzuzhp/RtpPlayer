@@ -123,7 +123,7 @@ EventBus::Svc()
             {
                 if ((*citr)->evt_mask & event->type)
                 {
-                    (*citr)->module->AddRef();
+                    (*citr)->module->add_ref();
                     modules.push_back((*citr)->module);
                 }
             }
@@ -136,7 +136,7 @@ EventBus::Svc()
             dynamic_cast<EventRecipient *>(*citr)->on_event(event);
             dynamic_cast<EventSender *>(*citr)->on_event_dispatched(event);
 
-            (*citr)->Release();
+            (*citr)->release();
         }
 
         delete event;

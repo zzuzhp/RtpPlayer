@@ -7,6 +7,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 
+VideoStream *
+VideoStream::create_instance(RtpStreamObserver * observer)
+{
+    if (!observer)
+    {
+        return NULL;
+    }
+
+    return new(std::nothrow) VideoStream(observer);
+}
+
 VideoStream::VideoStream(RtpStreamObserver * observer) : RtpStream(observer, "video stream"),
                                                          m_depacketizer(NULL),
                                                          m_frame_jitter(RTP_VIDEO_CLOCK)

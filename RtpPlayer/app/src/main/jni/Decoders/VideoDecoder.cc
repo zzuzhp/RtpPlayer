@@ -75,7 +75,7 @@ VideoDecoder::dec_image_output(video_dec_context * decoder, video_surface * imag
 
         video_decoder->m_observer->on_decoded_image(video_decoder, video_image);
 
-        video_image->Release();
+        video_image->release();
     }
 }
 

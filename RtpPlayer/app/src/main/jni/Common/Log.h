@@ -262,7 +262,7 @@ private:
 static
 void RP_LOG_DEF (std::string location, LOGLevel level, const char * fmt, ...)
 {
-    static char log_msg[1024] = {0};
+    char log_msg[1024] = {0};
 
     va_list args;
     va_start(args, fmt);

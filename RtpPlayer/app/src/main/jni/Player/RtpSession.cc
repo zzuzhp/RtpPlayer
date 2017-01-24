@@ -46,7 +46,7 @@ RtpSession::create_stream(RTP_MEDIA_TYPE media, int rtp_payload_type, int port)
 
     if (ISVIDEO(media))
     {
-        VideoStream * video_stream = new (std::nothrow)VideoStream(this);
+        VideoStream * video_stream = VideoStream::create_instance(this);
         if (!video_stream)
         {
             RP_LOG_E("stream %d receiver create failed.", rtp_payload_type);
@@ -55,7 +55,7 @@ RtpSession::create_stream(RTP_MEDIA_TYPE media, int rtp_payload_type, int port)
 
         if (!video_stream->set_video_media(media, rtp_payload_type, port))
         {
-            delete video_stream;
+            video_stream->release();
             return NULL;
         }
 
@@ -63,7 +63,7 @@ RtpSession::create_stream(RTP_MEDIA_TYPE media, int rtp_payload_type, int port)
     }
     else
     {
-        AudioStream * audio_stream = new (std::nothrow)AudioStream(this);
+        AudioStream * audio_stream = AudioStream::create_instance(this);
         if (!audio_stream)
         {
             RP_LOG_E("stream %d receiver create failed.", rtp_payload_type);
@@ -72,7 +72,7 @@ RtpSession::create_stream(RTP_MEDIA_TYPE media, int rtp_payload_type, int port)
 
         if (!audio_stream->set_audio_media(media, rtp_payload_type, port))
         {
-            delete audio_stream;
+            audio_stream->release();
             return NULL;
         }
 
@@ -86,15 +86,24 @@ RtpSession::create_stream(RTP_MEDIA_TYPE media, int rtp_payload_type, int port)
 void
 RtpSession::destroy_stream(RtpStream * stream)
 {
-    CProThreadMutexGuard mon(m_lock);
+    RtpStream * rtp_stream = NULL;
 
-    std::vector<RtpStream *>::iterator itr = std::find(m_streams.begin(), m_streams.end(), stream);
-    if (itr != m_streams.end())
+    {
+        CProThreadMutexGuard mon(m_lock);
+
+        std::vector<RtpStream *>::iterator itr = std::find(m_streams.begin(), m_streams.end(), stream);
+        if (itr != m_streams.end())
+        {
+            rtp_stream = *itr;
+            m_streams.erase(itr);
+        }
+    }
+
+    if (rtp_stream)
     {
         RP_FOOTPRINT
-        delete *itr;
+        rtp_stream->release();
         RP_FOOTPRINT
-        m_streams.erase(itr);
     }
 }
 

@@ -20,7 +20,7 @@ AVSync::~AVSync()
         AVFrame * frame = m_video_frames.front();
         m_video_frames.pop_front();
 
-        frame->Release();
+        frame->release();
     }
 
     while (!m_audio_frames.empty())
@@ -28,7 +28,7 @@ AVSync::~AVSync()
         AVFrame * frame = m_audio_frames.front();
         m_audio_frames.pop_front();
 
-        frame->Release();
+        frame->release();
     }
 
     delete m_timer;
@@ -59,7 +59,7 @@ AVSync::push_video(AVFrame * frame)
 {
     CProThreadMutexGuard mon(m_lock);
 
-    frame->AddRef();
+    frame->add_ref();
 
     m_video_frames.push_back(frame);
 }
@@ -70,7 +70,7 @@ AVSync::push_audio(AVFrame * frame)
     {
         CProThreadMutexGuard mon(m_lock);
 
-        frame->AddRef();
+        frame->add_ref();
 
         m_audio_frames.push_back(frame);
     }
@@ -202,7 +202,7 @@ AVSync::release_frame(AVFrame * frame)
 {
     if (frame)
     {
-        frame->Release();
+        frame->release();
     }
 }
 

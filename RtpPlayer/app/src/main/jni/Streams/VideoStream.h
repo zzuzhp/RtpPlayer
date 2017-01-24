@@ -12,15 +12,17 @@ class VideoStream : public RtpStream
 {
 public:
 
-    VideoStream(RtpStreamObserver * observer);
-
-    ~VideoStream();
+    static VideoStream * create_instance(RtpStreamObserver * observer);
 
     bool set_video_media(RTP_MEDIA_TYPE media, int payload_type, int port);
 
     void video_info(float & framerate, int & bitrate_kbps, int & losses, float & lossrate);
 
 private:
+
+    VideoStream(RtpStreamObserver * observer);
+
+    ~VideoStream();
 
     void on_rtp_packet(IRtpPacket * packet, bool discontinuous);
 

@@ -14,7 +14,7 @@
 typedef struct VideoPlayer
 {
     RtpStream       * stream;
-    VideoOut        * vout;
+    AVOut           * vout;
     VideoDecoder    * decoder;
 
     uint32_t          start_ts;
@@ -25,7 +25,7 @@ typedef struct VideoPlayer
 typedef struct AudioPlayer
 {
     RtpStream       * stream;
-    AudioOut        * aout;
+    AVOut           * aout;
     AudioDecoder    * decoder;
 
     uint32_t          start_ts;

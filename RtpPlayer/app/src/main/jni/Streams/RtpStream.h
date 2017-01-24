@@ -29,19 +29,19 @@ public:
 
     const int rtp_payload_type() const { return m_payload_type; }
 
+    unsigned long add_ref()
+    {
+        return RefCount::add_ref();
+    }
+
+    unsigned long release()
+    {
+        return RefCount::release();
+    }
+
 protected:
 
     RtpStream(RtpStreamObserver * observer, const char * name, int evt_mask = (int)EVENT_ALL);
-
-    unsigned long AddRef()
-    {
-        return RefCount::AddRef();
-    }
-
-    unsigned long Release()
-    {
-        return RefCount::Release();
-    }
 
     virtual void on_rtp_packet(IRtpPacket * packet, bool discontinuous){};
 

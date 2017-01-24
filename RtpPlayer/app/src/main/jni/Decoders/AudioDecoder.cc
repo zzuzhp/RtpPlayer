@@ -68,7 +68,7 @@ AudioDecoder::dec_pcm_output(audio_dec_context * decoder, audio_dec_pcm * pcm, v
 
         audio_decoder->m_observer->on_decoded_pcm(audio_decoder, pcm_frame);
 
-        pcm_frame->Release();
+        pcm_frame->release();
     }
 }
 

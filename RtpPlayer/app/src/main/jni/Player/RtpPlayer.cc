@@ -53,93 +53,108 @@ fail:
 void
 RtpPlayer::tear()
 {
+    RtpSession * session = NULL;
+    AVSync     * sync    = NULL;
+
     RP_FOOTPRINT
     remove_video();
     RP_FOOTPRINT
     remove_audio();
     RP_FOOTPRINT
 
-    if (m_av_sync)
     {
-        delete m_av_sync;
+        CProThreadMutexGuard mon(m_lock);
+
+        session   = m_session;
+        m_session = NULL;
+
+        sync      = m_av_sync;
         m_av_sync = NULL;
     }
 
-    if (m_session)
+    if (sync)
     {
-        delete m_session;
-        m_session = NULL;
+        delete sync;
+    }
+
+    if (session)
+    {
+        delete session;
     }
 }
 
 bool
 RtpPlayer::play_video(ANativeWindow * window, RTP_MEDIA_TYPE media, int rtp_payload_type, int port)
 {
-    CProThreadMutexGuard mon(m_lock);
+    VideoPlayer * player = NULL;
 
-    if (m_video_player)
     {
-        RP_LOG_E("only one video is allowed for one player, old video:%d(%d), new video:%d(%d)",
-                  m_video_player->stream->media_type(), m_video_player->stream->rtp_payload_type(), media, rtp_payload_type);
-        return false;
-    }
+        CProThreadMutexGuard mon(m_lock);
 
-    VIDEO_CODEC_TYPE codec;
-    if (media == RTP_MEDIA_VIDEO_AVC)
-    {
-        codec = CODEC_TYPE_AVC;
-    }
-    else if (media == RTP_MEDIA_VIDEO_VP8)
-    {
-        codec = CODEC_TYPE_VP8;
-    }
-    else
-    {
-        RP_LOG_E("play_video failed for invalid media: %d!", media);
-        return false;
-    }
+        if (m_video_player)
+        {
+            RP_LOG_E("only one video is allowed for one player, old video:%d(%d), new video:%d(%d)",
+                      m_video_player->stream->media_type(), m_video_player->stream->rtp_payload_type(), media, rtp_payload_type);
+            return false;
+        }
 
-    VideoPlayer * player = new (std::nothrow)VideoPlayer;
-    if (!player)
-    {
-        RP_LOG_E("VideoPlayer alloc failed!");
-        return false;
+        VIDEO_CODEC_TYPE codec;
+        if (media == RTP_MEDIA_VIDEO_AVC)
+        {
+            codec = CODEC_TYPE_AVC;
+        }
+        else if (media == RTP_MEDIA_VIDEO_VP8)
+        {
+            codec = CODEC_TYPE_VP8;
+        }
+        else
+        {
+            RP_LOG_E("play_video failed for invalid media: %d!", media);
+            return false;
+        }
+
+        player = new (std::nothrow)VideoPlayer;
+        if (!player)
+        {
+            RP_LOG_E("VideoPlayer alloc failed!");
+            return false;
+        }
+
+        player->vout = VideoOut::create_instance(window);
+        if (!player->vout)
+        {
+            RP_LOG_E("video out create failed!");
+            goto fail;
+        }
+
+        player->vout->set_source(m_av_sync);
+        if (!player->vout->start())
+        {
+            RP_LOG_E("video out start failed!");
+            goto fail;
+        }
+
+        player->stream = m_session->create_stream(media, rtp_payload_type, port);
+        if (!player->stream)
+        {
+            RP_LOG_E("create_stream failed for media: %d!", media);
+            goto fail;
+        }
+
+        player->decoder = VideoDecoder::create_instance();
+        if (!player->decoder || !player->decoder->build(codec, this))
+        {
+            RP_LOG_E("failed to create decoder for codec: %d.", codec);
+            goto fail;
+        }
+
+        player->width  = 0;
+        player->height = 0;
+
+        m_video_player = player;
+
+        return true;
     }
-
-    player->vout = VideoOut::create_instance(window);
-    if (!player->vout)
-    {
-        RP_LOG_E("video out create failed!");
-        goto fail;
-    }
-
-    player->vout->set_source(m_av_sync);
-    if (!player->vout->start())
-    {
-        RP_LOG_E("video out start failed!");
-        goto fail;
-    }
-
-    player->stream = m_session->create_stream(media, rtp_payload_type, port);
-    if (!player->stream)
-    {
-        RP_LOG_E("create_stream failed for media: %d!", media);
-        goto fail;
-    }
-
-    player->decoder = VideoDecoder::create_instance();
-    if (!player->decoder || !player->decoder->build(codec, this))
-    {
-        RP_LOG_E("failed to create decoder for codec: %d.", codec);
-        goto fail;
-    }
-
-    player->width  = 0;
-    player->height = 0;
-
-    m_video_player = player;
-
-    return true;
 
 fail:
 
@@ -151,74 +166,78 @@ fail:
 bool
 RtpPlayer::play_audio(RTP_MEDIA_TYPE media, int rtp_payload_type, int port)
 {
-    CProThreadMutexGuard mon(m_lock);
+    AudioPlayer * player = NULL;
 
-    if (m_audio_player)
     {
-        RP_LOG_E("only one audio is allowed for one player, old audio:%d(%d), new audio:%d(%d)",
-                  m_audio_player->stream->media_type(), m_audio_player->stream->rtp_payload_type(), media, rtp_payload_type);
-        return false;
+        CProThreadMutexGuard mon(m_lock);
+
+        if (m_audio_player)
+        {
+            RP_LOG_E("only one audio is allowed for one player, old audio:%d(%d), new audio:%d(%d)",
+                      m_audio_player->stream->media_type(), m_audio_player->stream->rtp_payload_type(), media, rtp_payload_type);
+            return false;
+        }
+
+        AUDIO_CODEC_TYPE codec;
+        if (media == RTP_MEDIA_AUDIO_AAC)
+        {
+            codec = CODEC_TYPE_AAC;
+        }
+        else if (media == RTP_MEDIA_AUDIO_OPUS)
+        {
+            codec = CODEC_TYPE_OPUS;
+        }
+        else
+        {
+            RP_LOG_E("play_audio failed for invalid media: %d!", media);
+            return false;
+        }
+
+        player = new (std::nothrow)AudioPlayer;
+        if (!player)
+        {
+            RP_LOG_E("AudioPlayer alloc failed!");
+            return false;
+        }
+
+        player->aout = AudioOut::create_instance();
+        if (!player->aout)
+        {
+            RP_LOG_E("audio out create failed!");
+            goto fail;
+        }
+
+        player->aout->set_source(m_av_sync);
+        if (!player->aout->start())
+        {
+            RP_LOG_E("audio out start failed!");
+            goto fail;
+        }
+
+        player->stream = m_session->create_stream(media, rtp_payload_type, port);
+        if (!player->stream)
+        {
+            RP_LOG_E("create_stream failed for media: %d!", media);
+            goto fail;
+        }
+
+        player->decoder = AudioDecoder::create_instance();
+        if (!player->decoder || !player->decoder->build(codec, this))
+        {
+            RP_LOG_E("failed to create decoder for codec: %d.", codec);
+            goto fail;
+        }
+
+        m_av_sync->set_clock((AudioOut *)player->aout);
+
+        player->sample_rate     = 0;
+        player->channels        = 0;
+        player->bits_per_sample = 0;
+
+        m_audio_player = player;
+
+        return true;
     }
-
-    AUDIO_CODEC_TYPE codec;
-    if (media == RTP_MEDIA_AUDIO_AAC)
-    {
-        codec = CODEC_TYPE_AAC;
-    }
-    else if (media == RTP_MEDIA_AUDIO_OPUS)
-    {
-        codec = CODEC_TYPE_OPUS;
-    }
-    else
-    {
-        RP_LOG_E("play_audio failed for invalid media: %d!", media);
-        return false;
-    }
-
-    AudioPlayer * player = new (std::nothrow)AudioPlayer;
-    if (!player)
-    {
-        RP_LOG_E("AudioPlayer alloc failed!");
-        return false;
-    }
-
-    player->aout = AudioOut::create_instance();
-    if (!player->aout)
-    {
-        RP_LOG_E("audio out create failed!");
-        goto fail;
-    }
-
-    player->aout->set_source(m_av_sync);
-    if (!player->aout->start())
-    {
-        RP_LOG_E("audio out start failed!");
-        goto fail;
-    }
-
-    player->stream = m_session->create_stream(media, rtp_payload_type, port);
-    if (!player->stream)
-    {
-        RP_LOG_E("create_stream failed for media: %d!", media);
-        goto fail;
-    }
-
-    player->decoder = AudioDecoder::create_instance();
-    if (!player->decoder || !player->decoder->build(codec, this))
-    {
-        RP_LOG_E("failed to create decoder for codec: %d.", codec);
-        goto fail;
-    }
-
-    m_av_sync->set_clock(player->aout);
-
-    player->sample_rate     = 0;
-    player->channels        = 0;
-    player->bits_per_sample = 0;
-
-    m_audio_player = player;
-
-    return true;
 
 fail:
 
@@ -230,24 +249,36 @@ fail:
 void
 RtpPlayer::remove_video()
 {
-    CProThreadMutexGuard mon(m_lock);
+    VideoPlayer * player = NULL;
 
-    if (m_video_player)
     {
-        remove_player(m_video_player);
+        CProThreadMutexGuard mon(m_lock);
+
+        player = m_video_player;
         m_video_player = NULL;
+    }
+
+    if (player)
+    {
+        remove_player(player);
     }
 }
 
 void
 RtpPlayer::remove_audio()
 {
-    CProThreadMutexGuard mon(m_lock);
+    AudioPlayer * player = NULL;
 
-    if (m_audio_player)
     {
-        remove_player(m_audio_player);
+        CProThreadMutexGuard mon(m_lock);
+
+        player = m_audio_player;
         m_audio_player = NULL;
+    }
+
+    if (player)
+    {
+        remove_player(player);
     }
 }
 
@@ -323,10 +354,10 @@ RtpPlayer::remove_player(VideoPlayer * player)
         m_session->destroy_stream(player->stream);
 
         player->decoder->tear();
-        player->decoder->Release();
+        player->decoder->release();
 
         player->vout->stop();
-        player->vout->Release();
+        player->vout->release();
 
         delete player;
     }
@@ -340,10 +371,10 @@ RtpPlayer::remove_player(AudioPlayer * player)
         m_session->destroy_stream(player->stream);
 
         player->decoder->tear();
-        player->decoder->Release();
+        player->decoder->release();
 
         player->aout->stop();
-        player->aout->Release();
+        player->aout->release();
 
         delete player;
     }
@@ -361,7 +392,7 @@ RtpPlayer::on_session_frame(RtpSession * session, RtpStream * stream, MediaFrame
         {
             if (m_video_player && m_video_player->stream == stream)
             {
-                m_video_player->decoder->AddRef();
+                m_video_player->decoder->add_ref();
                 decoder = m_video_player->decoder;
             }
         }
@@ -369,7 +400,7 @@ RtpPlayer::on_session_frame(RtpSession * session, RtpStream * stream, MediaFrame
         {
             if (m_audio_player && m_audio_player->stream == stream)
             {
-                m_audio_player->decoder->AddRef();
+                m_audio_player->decoder->add_ref();
                 decoder = m_audio_player->decoder;
             }
         }
@@ -378,7 +409,7 @@ RtpPlayer::on_session_frame(RtpSession * session, RtpStream * stream, MediaFrame
     if (decoder)
     {
         decoder->decode(frame);
-        decoder->Release();
+        decoder->release();
     }
 }
 

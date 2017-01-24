@@ -93,7 +93,7 @@ RtpClient::on_network_read(const char * data, size_t bytes)
     else
     {
         m_observer->on_rtp_packet(this, packet);
-        packet->Release();
+        packet->release();
     }
 
     read();
