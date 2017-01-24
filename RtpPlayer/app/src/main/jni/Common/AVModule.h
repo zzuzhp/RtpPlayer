@@ -12,7 +12,8 @@ enum AVModuleType
 {
     AV_MODULE_SOURCE        = 0x0100,
     AV_MODULE_TRANSFORMER   = 0x0200,
-    AV_MODULE_RENDERER      = 0x0400
+    AV_MODULE_RENDERER      = 0x0400,
+    AV_MODULE_MODERATOR     = 0x0800
 };
 
 class AVModule : public EventRecipient,

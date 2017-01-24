@@ -16,7 +16,7 @@ VideoDecoder::~VideoDecoder()
 }
 
 bool
-VideoDecoder::build(VIDEO_CODEC_TYPE codec, VideoDecoderObserver * observer)
+VideoDecoder::build(VIDEO_CODEC_TYPE codec, AVDecoderObserver * observer)
 {
     m_decoder = create_video_decoder(codec);
     if (!m_decoder || video_dec_init(m_decoder, 2) != 0)
@@ -73,7 +73,7 @@ VideoDecoder::dec_image_output(video_dec_context * decoder, video_surface * imag
     {
         video_image = AVFrame::create_instance(image, decoder);
 
-        video_decoder->m_observer->on_decoded_image(video_decoder, video_image);
+        video_decoder->m_observer->on_decoder_output(video_decoder, video_image);
 
         video_image->release();
     }

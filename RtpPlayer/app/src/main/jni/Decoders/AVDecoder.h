@@ -7,6 +7,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 
+class AVDecoder;
+class AVFrame;
+class AVDecoderObserver
+{
+public:
+    virtual void on_decoder_output(AVDecoder * decoder, AVFrame * frame) = 0;
+};
+
 class AVDecoder : public AVModule
 {
 public:

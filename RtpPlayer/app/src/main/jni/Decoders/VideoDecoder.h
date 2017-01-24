@@ -7,13 +7,6 @@
 
 #include <new>
 
-class VideoDecoder;
-class VideoDecoderObserver
-{
-public:
-    virtual void on_decoded_image (VideoDecoder * decoder, AVFrame * image) = 0;
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 
@@ -26,7 +19,7 @@ public:
         return new (std::nothrow)VideoDecoder();
     }
 
-    bool build(VIDEO_CODEC_TYPE codec, VideoDecoderObserver * observer);
+    bool build(VIDEO_CODEC_TYPE codec, AVDecoderObserver * observer);
 
     void tear();
 
@@ -44,7 +37,7 @@ private:
 
 private:
 
-    VideoDecoderObserver * m_observer;
+    AVDecoderObserver    * m_observer;
 
     video_dec_context    * m_decoder;
 };

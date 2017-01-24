@@ -32,7 +32,9 @@ LOCAL_MODULE := rtpplayer
 LOCAL_SRC_FILES  := RtpPlayer_jni.cc                        \
                     Events/EventBus.cc                      \
                     Events/EventQueue.cc                    \
-                    Player/RtpSession.cc                    \
+                    Player/BasePlayer.cc                    \
+                    Player/AudioPlayer.cc                   \
+                    Player/VideoPlayer.cc                   \
                     Player/RtpPlayer.cc                     \
                     Player/AVSync.cc                        \
                     Streams/RtpStream.cc                    \

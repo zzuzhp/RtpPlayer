@@ -16,7 +16,7 @@ AudioDecoder::~AudioDecoder()
 }
 
 bool
-AudioDecoder::build(AUDIO_CODEC_TYPE codec, AudioDecoderObserver * observer)
+AudioDecoder::build(AUDIO_CODEC_TYPE codec, AVDecoderObserver * observer)
 {
     m_decoder = create_audio_decoder(codec);
     if (!m_decoder || audio_dec_init(m_decoder) != 0)
@@ -66,7 +66,7 @@ AudioDecoder::dec_pcm_output(audio_dec_context * decoder, audio_dec_pcm * pcm, v
     {
         pcm_frame = AVFrame::create_instance(pcm, decoder);
 
-        audio_decoder->m_observer->on_decoded_pcm(audio_decoder, pcm_frame);
+        audio_decoder->m_observer->on_decoder_output(audio_decoder, pcm_frame);
 
         pcm_frame->release();
     }

@@ -21,7 +21,9 @@ RtpStream::RtpStream(RtpStreamObserver * observer,
 
 RtpStream::~RtpStream()
 {
+    RP_FOOTPRINT
     delete m_client;
+    RP_FOOTPRINT
 }
 
 void

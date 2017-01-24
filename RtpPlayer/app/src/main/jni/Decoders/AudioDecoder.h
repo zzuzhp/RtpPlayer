@@ -7,13 +7,6 @@
 
 #include <new>
 
-class AudioDecoder;
-class AudioDecoderObserver
-{
-public:
-    virtual void on_decoded_pcm (AudioDecoder * decoder, AVFrame * pcm_frame) = 0;
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 
@@ -26,7 +19,7 @@ public:
         return new (std::nothrow)AudioDecoder();
     }
 
-    bool build(AUDIO_CODEC_TYPE codec, AudioDecoderObserver * observer);
+    bool build(AUDIO_CODEC_TYPE codec, AVDecoderObserver * observer);
 
     void tear();
 
@@ -44,7 +37,7 @@ private:
 
 private:
 
-    AudioDecoderObserver * m_observer;
+    AVDecoderObserver    * m_observer;
 
     audio_dec_context    * m_decoder;
 };

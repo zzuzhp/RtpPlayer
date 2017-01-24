@@ -43,8 +43,8 @@ Java_zhaopeng_com_rtpplayer_rtpplayer_RtpPlayer_create_1rtp_1player(JNIEnv  * en
                                                                     jobject   surface)
 {
     /* initialize the logger before all log prints */
-    create_logger<LoggerSystem>();
-    create_logger<LoggerFile>();
+    create_logger<LoggerSystem>(); ///< write to logcat
+    create_logger<LoggerFile>();   ///< write to file
 
     ANativeWindow * window = ANativeWindow_fromSurface(env, surface);
     if (!window)
@@ -222,6 +222,8 @@ Java_zhaopeng_com_rtpplayer_rtpplayer_RtpPlayer_destroy_1rtp_1player(JNIEnv  * e
         delete player->player;
         delete player;
     }
+
+    RP_LOG_E("rtp player has been successfully destroyed!");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
