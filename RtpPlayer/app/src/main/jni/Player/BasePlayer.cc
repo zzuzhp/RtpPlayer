@@ -54,18 +54,25 @@ BasePlayer::clear()
 
     if (stream)
     {
+        RP_FOOTPRINT
         stream->release();
+        RP_FOOTPRINT
     }
 
     if (decoder)
     {
+        RP_FOOTPRINT
         decoder->release();
+        RP_FOOTPRINT
     }
 
     if (renderer)
     {
+        RP_FOOTPRINT
         renderer->stop();
+        RP_FOOTPRINT
         renderer->release();
+        RP_FOOTPRINT
     }
 }
 

@@ -12,7 +12,9 @@ VideoDecoder::VideoDecoder() : AVDecoder("video decoder"),
 
 VideoDecoder::~VideoDecoder()
 {
+    RP_FOOTPRINT
     tear();
+    RP_FOOTPRINT
 }
 
 bool
@@ -43,6 +45,8 @@ fail:
 void
 VideoDecoder::tear()
 {
+    /*!!! CAUTION: AVFrame is holding this context(for release the frame),
+      so the context should be kept valid until no one is referencing us.(do not call 'tear' outside of the dtor) */
     if (m_decoder)
     {
         video_dec_destroy(m_decoder);
@@ -71,7 +75,7 @@ VideoDecoder::dec_image_output(video_dec_context * decoder, video_surface * imag
 
     if (video_decoder && video_decoder->m_observer)
     {
-        video_image = AVFrame::create_instance(image, decoder);
+        video_image = AVFrame::create_instance(video_decoder, image, decoder);
 
         video_decoder->m_observer->on_decoder_output(video_decoder, video_image);
 

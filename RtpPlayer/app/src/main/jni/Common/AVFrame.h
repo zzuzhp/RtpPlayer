@@ -2,6 +2,7 @@
 #define ___AVFRAME_H___
 
 #include "Common/RefCount.h"
+#include "Decoders/AVDecoder.h"
 #include "videodec.h"
 #include "audiodec.h"
 
@@ -14,13 +15,23 @@ class AVFrame : public RefCount
 {
 public:
 
-    static AVFrame * create_instance(video_surface * surface, video_dec_context * decoder)
+    static AVFrame * create_instance(AVDecoder * decoder, video_surface * surface, video_dec_context * ctx)
     {
-        return new (std::nothrow) AVFrame(surface, decoder);
+        if (!decoder || !surface)
+        {
+            return NULL;
+        }
+
+        return new (std::nothrow) AVFrame(decoder, surface, ctx);
     }
 
-    static AVFrame * create_instance(audio_dec_pcm * pcm, audio_dec_context * decoder)
+    static AVFrame * create_instance(audio_dec_pcm * pcm, audio_dec_context * ctx)
     {
+        if (!pcm)
+        {
+            return NULL;
+        }
+
         audio_dec_pcm * pcm_frame = new (std::nothrow)audio_dec_pcm;
         if (!pcm_frame)
         {
@@ -44,7 +55,7 @@ public:
         pcm_frame->pts              = pcm->pts;
         pcm_frame->opaque           = pcm->opaque;
 
-        return new AVFrame(pcm_frame, decoder);
+        return new AVFrame(pcm_frame, ctx);
     }
 
     bool is_video() const
@@ -124,16 +135,26 @@ public:
 
 private:
 
-    AVFrame(video_surface * surface, video_dec_context * decoder) : m_surface(surface),
-                                                                    m_decoder(decoder),
-                                                                    m_video(true)
+    AVFrame(AVDecoder           * decoder,
+            video_surface       * surface,
+            video_dec_context   * ctx) : m_decoder(decoder),
+                                         m_surface(surface),
+                                         m_context(ctx),
+                                         m_video(true),
+                                         m_a_context(NULL),
+                                         m_pcm(NULL)
     {
-
+        /* hold reference to the decoder to make sure the context is still valid before the frame is released */
+        m_decoder->add_ref();
     }
 
-    AVFrame(audio_dec_pcm * pcm, audio_dec_context * decoder) : m_pcm(pcm),
-                                                                m_a_decoder(decoder),
-                                                                m_video(false)
+    AVFrame(audio_dec_pcm       * pcm,
+            audio_dec_context   * ctx) : m_pcm(pcm),
+                                         m_a_context(ctx),
+                                         m_video(false),
+                                         m_decoder(NULL),
+                                         m_surface(NULL),
+                                         m_context(NULL)
     {
 
     }
@@ -142,7 +163,8 @@ private:
     {
         if (m_video)
         {
-            video_dec_release_image(m_decoder, m_surface);
+            video_dec_release_image(m_context, m_surface);
+            m_decoder->release();
         }
         else
         {
@@ -158,10 +180,11 @@ private:
 
     bool                 m_video;
 
+    AVDecoder          * m_decoder;
     video_surface      * m_surface;
-    video_dec_context  * m_decoder;
+    video_dec_context  * m_context;
 
-    audio_dec_context  * m_a_decoder;
+    audio_dec_context  * m_a_context;
     audio_dec_pcm      * m_pcm;
 };
 

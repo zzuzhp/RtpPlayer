@@ -12,7 +12,9 @@ AudioDecoder::AudioDecoder() : AVDecoder("audio decoder"),
 
 AudioDecoder::~AudioDecoder()
 {
-
+    RP_FOOTPRINT
+    tear();
+    RP_FOOTPRINT
 }
 
 bool
