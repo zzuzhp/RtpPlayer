@@ -52,6 +52,9 @@ LOCAL_SRC_FILES  := RtpPlayer_jni.cc                        \
                     Networks/UdpSession.cc                  \
                     Networks/UdpClient.cc                   \
                     Networks/UdpServer.cc                   \
+                    Networks/TcpSession.cc                  \
+                    Networks/TcpClient.cc                   \
+                    Networks/TcpServer.cc                   \
                     Rtp/RtpPacket.cc                        \
                     Rtp/RtpClient.cc
 

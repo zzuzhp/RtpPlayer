@@ -20,7 +20,7 @@ public:
     void connect(const std::string host, const std::string protocol);
 
     template <typename T, typename Y>
-    void connect_connect_handler(T handler, Y * obj)
+    inline void connect_connect_handler(T handler, Y * obj)
     {
         m_connect_handler = std::bind(handler, obj, std::placeholders::_1);
     }
