@@ -2,6 +2,7 @@
 #define ___AVSYNC_H___
 
 #include "Renders/AVOut.h"
+#include "Common/AVModule.h"
 #include "Common/AVFrame.h"
 #include "Common/AVTimer.h"
 
@@ -10,13 +11,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 
-class AVSync : public AVSource
+class AVSync : public AVSource,
+               public AVModule
 {
 public:
 
-    AVSync();
-
-    ~AVSync();
+    static AVSync * create_instance();
 
     void set_clock(AVClock * clock);
 
@@ -33,6 +33,12 @@ public:
     int video_latency_ms();
 
     int audio_latency_ms();
+
+private:
+
+    AVSync();
+
+    ~AVSync();
 
 private:
 

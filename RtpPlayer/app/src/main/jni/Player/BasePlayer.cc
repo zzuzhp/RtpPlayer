@@ -36,6 +36,7 @@ BasePlayer::clear()
     RtpStream   * stream   = NULL;
     AVDecoder   * decoder  = NULL;
     AVOut       * renderer = NULL;
+    AVSync      * sync     = NULL;
 
     {
         CProThreadMutexGuard mon(m_lock);
@@ -49,6 +50,7 @@ BasePlayer::clear()
         renderer   = m_renderer;
         m_renderer = NULL;
 
+        sync       = m_av_sync;
         m_av_sync  = NULL;
     }
 
@@ -72,6 +74,13 @@ BasePlayer::clear()
         renderer->stop();
         RP_FOOTPRINT
         renderer->release();
+        RP_FOOTPRINT
+    }
+
+    if (sync)
+    {
+        RP_FOOTPRINT
+        sync->release();
         RP_FOOTPRINT
     }
 }

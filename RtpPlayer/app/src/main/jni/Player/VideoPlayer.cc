@@ -74,6 +74,7 @@ VideoPlayer::build (AVSync * sync, ANativeWindow * window, RTP_MEDIA_TYPE media,
         m_width  = 0;
         m_height = 0;
 
+        sync->add_ref();
         m_av_sync = sync;
     }
 
@@ -123,6 +124,8 @@ VideoPlayer::video_info(int   & width,
 void
 VideoPlayer::on_decoded_image(AVFrame * frame)
 {
+    AVSync * av_sync = NULL;
+
     if (frame->get_width() <= 0 || frame->get_height() <= 0)
     {
         RP_LOG_E("invalid frame from video decoder callback, width: %d, height: %d.", frame->get_width(), frame->get_height());
@@ -141,7 +144,17 @@ VideoPlayer::on_decoded_image(AVFrame * frame)
         m_width  = frame->get_width();
         m_height = frame->get_height();
 
-        m_av_sync->push_video(frame);
+        if (m_av_sync)
+        {
+            m_av_sync->add_ref();
+            av_sync = m_av_sync;
+        }
+    }
+
+    if (av_sync)
+    {
+        av_sync->push_video(frame);
+        av_sync->release();
     }
 }
 

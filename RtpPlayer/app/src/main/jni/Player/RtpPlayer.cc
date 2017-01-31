@@ -23,7 +23,7 @@ RtpPlayer::build()
 {
     CProThreadMutexGuard mon(m_lock);
 
-    m_av_sync = new(std::nothrow) AVSync();
+    m_av_sync = AVSync::create_instance();
     if (!m_av_sync)
     {
         RP_LOG_E("AVSync create failed!");
@@ -53,7 +53,7 @@ RtpPlayer::tear()
 
     if (sync)
     {
-        delete sync;
+        sync->release();
     }
 }
 

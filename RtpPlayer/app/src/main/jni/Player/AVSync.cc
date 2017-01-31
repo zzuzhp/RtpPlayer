@@ -1,4 +1,5 @@
 #include "AVSync.h"
+#include <new>
 
 #define MAX_LATENCY_MS      2000
 #define DISABLE_LIPSYNC     1
@@ -6,7 +7,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 
-AVSync::AVSync() : m_last_video_ts(0),
+AVSync *
+AVSync::create_instance()
+{
+    return new(std::nothrow) AVSync();
+}
+
+AVSync::AVSync() : AVModule(AV_MODULE_TRANSFORMER, "avsync", (int)EVENT_ALL),
+                   m_last_video_ts(0),
                    m_video_duration(0)
 {
     m_timer = new AVTimer();

@@ -75,6 +75,7 @@ AudioPlayer::build (AVSync * sync, RTP_MEDIA_TYPE media, int rtp_payload_type, i
         m_channels        = 0;
         m_bits_per_sample = 0;
 
+        sync->add_ref();
         m_av_sync = sync;
     }
 
@@ -124,6 +125,8 @@ AudioPlayer::audio_info(int     & sample_rate,
 void
 AudioPlayer::on_decoded_pcm (AVFrame * frame)
 {
+    AVSync * av_sync = NULL;
+
     if (frame->get_sample_rate() <= 0 || frame->get_channels() <= 0 || frame->get_bits_per_sample() <= 0)
     {
         RP_LOG_E("invalid frame from audio decoder callback, ar: %d, ac: %d, bits: %d.",
@@ -144,7 +147,17 @@ AudioPlayer::on_decoded_pcm (AVFrame * frame)
         m_channels        = frame->get_channels();
         m_bits_per_sample = frame->get_bits_per_sample();
 
-        m_av_sync->push_audio(frame);
+        if (m_av_sync)
+        {
+            m_av_sync->add_ref();
+            av_sync = m_av_sync;
+        }
+    }
+
+    if (av_sync)
+    {
+        av_sync->push_audio(frame);
+        av_sync->release();
     }
 }
 
