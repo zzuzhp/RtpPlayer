@@ -14,6 +14,10 @@ EventBus::EventBus() : m_exit(false)
 EventBus::~EventBus()
 {
     m_exit = true;
+
+    /* wake up the thread */
+    m_cond.Signal();
+
     Wait();
 }
 
