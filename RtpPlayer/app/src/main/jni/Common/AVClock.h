@@ -8,6 +8,8 @@ class AVClock
 {
 public:
 
+    virtual ~AVClock() {}
+
     virtual void start(int offset_ms) = 0;
 
     virtual void stop() = 0;

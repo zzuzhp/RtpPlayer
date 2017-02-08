@@ -1,6 +1,6 @@
 #include "EventBus.h"
 #include "Common/AVModule.h"
-#include "pro_time_util.h"
+#include "Common/Timer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
@@ -82,7 +82,7 @@ EventBus::post(EventSender      * sender,
 
     event->from             = sender;
     event->location         = location;
-    event->send_time        = ProGetTickCount64();
+    event->send_time        = Timer::now();
     event->done_time        = 0;
     event->name             = name;
     event->type             = type;

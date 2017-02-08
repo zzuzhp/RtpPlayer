@@ -1,9 +1,6 @@
 #include "AVSync.h"
 #include <new>
 
-#define MAX_LATENCY_MS      2000
-#define DISABLE_LIPSYNC     1
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 
@@ -14,11 +11,16 @@ AVSync::create_instance()
 }
 
 AVSync::AVSync() : AVModule(AV_MODULE_TRANSFORMER, "avsync", (int)EVENT_ALL),
+                   m_max_latency(1000),
                    m_last_video_ts(0),
-                   m_video_duration(0)
+                   m_last_time(-1),
+                   m_state(AVSYNC_BUFFERING),
+                   m_jitter(RTP_VIDEO_CLOCK)
 {
-    m_timer = new AVTimer();
-    m_clock = m_timer;
+    m_avtimer = new AVTimer();
+    m_avtimer->start(0);
+
+    m_clock   = m_avtimer;
 }
 
 AVSync::~AVSync()
@@ -39,19 +41,20 @@ AVSync::~AVSync()
         frame->release();
     }
 
-    delete m_timer;
+    delete m_avtimer;
 }
 
 void
 AVSync::set_clock(AVClock * clock)
 {
+#if 1
     CProThreadMutexGuard mon(m_lock);
 
     /* use external timer */
-    if (m_timer)
+    if (m_avtimer)
     {
-        delete m_timer;
-        m_timer = 0;
+        delete m_avtimer;
+        m_avtimer = 0;
     }
 
     if (!clock)
@@ -60,6 +63,7 @@ AVSync::set_clock(AVClock * clock)
     }
 
     m_clock = clock;
+#endif
 }
 
 void
@@ -70,6 +74,8 @@ AVSync::push_video(AVFrame * frame)
     frame->add_ref();
 
     m_video_frames.push_back(frame);
+
+    m_jitter.push(frame->get_pts());
 }
 
 void
@@ -84,7 +90,7 @@ AVSync::push_audio(AVFrame * frame)
     }
 
 #if 0
-    while (audio_latency_ms() > MAX_LATENCY_MS)
+    while (audio_latency_ms() > m_max_latency)
     {
         RP_LOG_W("av sync is buffering too much audio(%dms) and one will be erased.", m_audio_latency);
 
@@ -105,78 +111,52 @@ AVSync::push_audio(AVFrame * frame)
 int
 AVSync::video_frame(AVFrame ** frame)
 {
-    if (!frame)
+    CProThreadMutexGuard mon(m_lock);
+
+    if (m_video_frames.empty())
     {
+        *frame = NULL;
         return 1;
     }
 
-    *frame = NULL;
+    bool      first_frame  = m_last_time < 0;
+    int       time_now     = m_clock->time_ms();
+    AVFrame * video_frame  = m_video_frames.front();
+    uint32_t  duration     = (video_frame->get_pts() - m_last_video_ts) * 1000 / RTP_VIDEO_CLOCK;
 
+    ///< int delta = video_latency_ms() / m_max_latency * m_jitter.std_dev();
+
+    if (first_frame ||
+        time_now >= (m_last_time + duration))
     {
-        CProThreadMutexGuard mon(m_lock);
+        m_video_frames.pop_front();
+        *frame = video_frame;
 
-        if (m_video_frames.empty())
-        {
-            return 1;
-        }
+        m_last_video_ts = video_frame->get_pts();
+        m_last_time     = time_now;
 
-        AVFrame  * video_frame  = m_video_frames.front();
-        bool       first_frame  = m_video_duration == 0 && m_last_video_ts == 0;
-        uint32_t   duration     = first_frame ? 0 : (video_frame->get_pts() - m_last_video_ts) / RTP_VIDEO_CLOCK;
-        bool       render_frame = true;
-
-#if !DISABLE_LIPSYNC
-        if (m_clock)
-        {
-            /* sync video to audio */
-            int time_now = m_clock->time_ms();
-
-            if (!first_frame && (time_now + 50) < (m_video_duration + duration))
-            {
-                render_frame = false;
-            }
-        }
-#endif
-
-        if (render_frame)
-        {
-            m_video_frames.pop_front();
-            *frame = video_frame;
-
-            m_last_video_ts   = video_frame->get_pts();
-            m_video_duration += duration;
-
-            return 0;
-        }
+        return 0;
     }
 
+    *frame = NULL;
     return 1;
 }
 
 int
 AVSync::audio_frame(AVFrame ** frame)
 {
-    if (!frame)
+    CProThreadMutexGuard mon(m_lock);
+
+    if (m_audio_frames.empty())
     {
+        *frame = NULL;
         return 1;
     }
 
-    {
-        CProThreadMutexGuard mon(m_lock);
+    *frame = m_audio_frames.front();
+    m_audio_frames.pop_front();
 
-        if (m_audio_frames.empty())
-        {
-            *frame = NULL;
-            return 1;
-        }
-
-        *frame = m_audio_frames.front();
-        m_audio_frames.pop_front();
-
-        return 0;
-    }
-
-    return 1;
+    return 0;
 }
 
 int

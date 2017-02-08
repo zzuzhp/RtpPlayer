@@ -81,7 +81,9 @@ VideoStream::on_rtp_packet(IRtpPacket * packet, bool discontinuous)
 
     if (DEPACKETIZER_FRAME == status)
     {
-        ///< RP_LOG_D("video frame jitter(new frame): %dms", m_frame_jitter.jitter_ms(packet->GetTimeStamp()));
+        ///< m_frame_jitter.push(packet->timestamp());
+        ///< RP_LOG_D("video frame jitter(new frame): %dms", m_frame_jitter.jitter_ms());
+
         send_frame(&frame);
     }
 }

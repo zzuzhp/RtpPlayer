@@ -1,8 +1,8 @@
 #ifndef ___LOG_H___
 #define ___LOG_H___
 
-#include "pro_time_util.h"
 #include "pro_thread_mutex.h"
+#include "Common/Timer.h"
 #include "Common/Utils.h"
 
 #include <sstream>
@@ -79,10 +79,7 @@ protected:
 
         if (timestamp_enabled())
         {
-            std::string time_text;
-            ProGetTimeText(time_text);
-
-            stream << time_text << " ";
+            stream << Timer::now_s() << " ";
         }
 
         stream << meta.m_location << " " << text << std::endl;

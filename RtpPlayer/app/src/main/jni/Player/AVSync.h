@@ -5,12 +5,36 @@
 #include "Common/AVModule.h"
 #include "Common/AVFrame.h"
 #include "Common/AVTimer.h"
+#include "Common/AVJitter.h"
 
 #include <list>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-////
+////    balance between latency and smoothness
 
+/*                            x
+ *         buffering ---------- moderate
+ *                x \          /
+ *                   \        /
+ *                    \      /
+ *                    playing
+ *                       |
+ *                       |
+ *                       |
+ *                  accelerating
+ *
+ */
+enum AVSYNC_STATE
+{
+    AVSYNC_BUFFERING    = 0,   ///< buffering
+    AVSYNC_PLAYING      = 1,   ///< 1x playing
+    AVSYNC_ACCELERATING = 2,   ///< fast forward
+    AVSYNC_MODERATE     = 3    ///< pacing down
+};
+
+/*
+ *  buffer size should incorporate jitter
+ */
 class AVSync : public AVSource,
                public AVModule
 {
@@ -34,6 +58,8 @@ public:
 
     int audio_latency_ms();
 
+    AVSYNC_STATE state() const { return m_state; }
+
 private:
 
     AVSync();
@@ -46,15 +72,19 @@ private:
 
     std::list<AVFrame *>    m_audio_frames;
 
+    const uint32_t          m_max_latency;
+
     uint32_t                m_last_video_ts;
 
-    int                     m_video_duration;
+    AVClock               * m_clock;      ///< external timer
 
-    AVClock               * m_clock;    ///< external timer
+    AVTimer               * m_avtimer;    ///< internal timer
 
-    AVTimer               * m_timer;    ///< internal timer
+    int64_t                 m_last_time;
 
-    bool                    m_rendering_started;
+    AVSYNC_STATE            m_state;
+
+    AVJitter                m_jitter;
 
     CProThreadMutex         m_lock;
 };

@@ -3,7 +3,6 @@
 
 #include "pro_thread_mutex.h"
 
-#include <stdlib.h>
 #include <string>
 #include <sstream>
 

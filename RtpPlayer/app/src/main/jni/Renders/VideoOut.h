@@ -6,7 +6,6 @@
 #include <EGL/egl.h>
 
 #include "pro_stat.h"
-#include "Common/AVJitter.h"
 #include "Renders/AVOutBase.h"
 
 #include <new>
@@ -116,7 +115,6 @@ private:
     GLuint                      m_position_handle;
     GLuint                      m_texture_coord;
 
-    AVJitter                    m_jitter;
     CProStatBitRate             m_framerate;
 };
 

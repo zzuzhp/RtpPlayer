@@ -109,8 +109,6 @@ void
 RtpClient::on_network_accept(UdpSessionRef session)
 {
     /* network ready */
-    RP_LOG_E("on_network_accept");
-
     session->connect_read_handler(&RtpClient::on_network_read, this);
     ///< session->connect_read_complete_handler(&RtpClient::on_network_read_complete, this);
 

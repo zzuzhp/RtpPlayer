@@ -2,7 +2,7 @@
 #define ___AVTIMER_H___
 
 #include "Common/AVClock.h"
-#include "pro_time_util.h"
+#include "Common/Timer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////    a simple timer
@@ -31,11 +31,8 @@ public:
     /* begins timing, optionally allowing a relative offset */
     void start(int offset_ms)
     {
-        if (m_stopped)
-        {
-            m_start_time = ProGetTickCount64() - offset_ms;
-            m_stopped = false;
-        }
+        m_start_time = Timer::now() - offset_ms;
+        m_stopped = false;
     }
 
     /* ends timing */
@@ -43,7 +40,7 @@ public:
     {
         if (!m_stopped)
         {
-            m_end_time = ProGetTickCount64();
+            m_end_time = Timer::now();
             m_stopped = true;
         }
     }
@@ -67,16 +64,16 @@ public:
             return m_end_time - m_start_time;
         }
 
-        return ProGetTickCount64() - m_start_time;
+        return Timer::now() - m_start_time;
     }
 
 private:
 
     bool        m_stopped;
 
-    PRO_INT64   m_start_time;
+    int64_t     m_start_time;
 
-    PRO_INT64   m_end_time;
+    int64_t     m_end_time;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

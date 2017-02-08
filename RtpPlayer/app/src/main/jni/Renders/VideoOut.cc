@@ -57,8 +57,7 @@ VideoOut::VideoOut(ANativeWindow * window) : AVOutBase(true, "video renderer"),
                                              m_surface_height(0),
                                              m_program(0),
                                              m_vertex_shader(0),
-                                             m_fragment_shader(0),
-                                             m_jitter(RTP_VIDEO_CLOCK)
+                                             m_fragment_shader(0)
 {
     memset(m_textures, 0, sizeof(m_textures));
 }
@@ -172,7 +171,7 @@ VideoOut::on_frame(AVFrame * frame)
 
     m_framerate.PushData(1);
 
-    ///< RP_LOG_D("render frame rate %.2f, jitter: %dms", m_framerate.GetBitRate(), m_jitter.jitter_ms(frame->get_pts()));
+    ///< RP_LOG_D("render frame rate %.2f", m_framerate.GetBitRate());
 }
 
 void
