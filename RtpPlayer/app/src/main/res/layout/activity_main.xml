@@ -52,4 +52,19 @@
         android:elevation="15dp"
         android:typeface="monospace"
         android:textSize="10sp"/>
+
+    <TextView
+        android:text="cpu: 0%"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:id="@+id/cpu"
+        android:layout_alignTop="@+id/play_time"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textColor="@android:color/holo_blue_dark"
+        android:elevation="15dp"
+        android:typeface="monospace"
+        android:textSize="10sp"/>
 </RelativeLayout>

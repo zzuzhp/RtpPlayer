@@ -10,6 +10,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 import zhaopeng.com.rtpplayer.R;
 import zhaopeng.com.rtpplayer.rtpplayer.AudioInfo;
 import zhaopeng.com.rtpplayer.rtpplayer.MediaType;
@@ -28,12 +31,15 @@ public class MainActivity extends AppCompatActivity
     private static final int         a_clock_r = 48000;
     private static final int VIDEO_INFO_UPDATE = 0;
     private static final int  PLAY_TIME_UPDATE = 1;
+    private static final int          CPU_RATE = 2;
 
+    private CPURate     cpu;
     private RtpPlayer   player;
     private long        handle;
     private SurfaceView surface   = null;
     private TextView    av_info   = null;
     private TextView    play_time = null;
+    private TextView    cpu_rate  = null;
     private volatile boolean exit = false;
     private Handler msgHandler    = new Handler()
     {
@@ -48,6 +54,10 @@ public class MainActivity extends AppCompatActivity
             {
                 play_time.setText(String.valueOf(msg.obj));
             }
+            else if (msg.what == CPU_RATE)
+            {
+                cpu_rate.setText(String.valueOf(msg.obj));
+            }
         }
     };
 
@@ -59,12 +69,14 @@ public class MainActivity extends AppCompatActivity
 
         av_info   = (TextView) findViewById(R.id.stream_info);
         play_time = (TextView) findViewById(R.id.play_time);
+        cpu_rate  = (TextView) findViewById(R.id.cpu);
 
         av_info.setText(String.format("listening to: ") +
                         getWIFILocalIpAdress() +
                         String.format(":%d/%d", port, a_port) +
                         String.format("\nconfigured for %s, %s", mediaType(media), mediaType(a_media)));
 
+        cpu = new CPURate();
         player = new RtpPlayer();
 
         createSurface();
@@ -113,6 +125,15 @@ public class MainActivity extends AppCompatActivity
 
                             msg.what = PLAY_TIME_UPDATE;
                             msg.obj  = formatTime(time);
+
+                            msgHandler.sendMessage(msg);
+                        }
+
+                        {
+                            Message msg = new Message();
+
+                            msg.what = CPU_RATE;
+                            msg.obj  = String.format("cpu: %.1f%%", Math.max(0, cpu.CPULoad() * 100));
 
                             msgHandler.sendMessage(msg);
                         }
