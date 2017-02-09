@@ -27,6 +27,11 @@ public:
         return m_render_time;
     }
 
+    void reset_time()
+    {
+        m_render_time = 0;
+    }
+
 private:
 
     virtual void on_frame(AVFrame * frame) = 0;

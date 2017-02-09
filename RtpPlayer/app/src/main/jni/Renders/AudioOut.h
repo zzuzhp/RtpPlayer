@@ -25,13 +25,15 @@ public:
 
     bool start() { return AVOutBase::start(); }
 
-    void start(int offset_ms){}
-
     void stop(){ AVOutBase::stop(); }
 
-    void resume(){}
+    void start_clock(int offset_ms){}
 
-    int time_ms()
+    void stop_clock(){ reset_time(); }
+
+    void resume_clock(){}
+
+    int clock_ms()
     {
         /* this is not accurate if there are lost packets: consider using timestamp */
         return render_time();

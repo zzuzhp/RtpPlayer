@@ -76,6 +76,8 @@ private:
 
     uint32_t                m_last_video_ts;
 
+    uint32_t                m_video_duration;
+
     AVClock               * m_clock;      ///< external timer
 
     AVTimer               * m_avtimer;    ///< internal timer
@@ -85,6 +87,8 @@ private:
     AVSYNC_STATE            m_state;
 
     AVJitter                m_jitter;
+
+    bool                    m_buffering;
 
     CProThreadMutex         m_lock;
 };

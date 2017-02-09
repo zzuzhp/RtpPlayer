@@ -24,19 +24,19 @@ public:
     {
         if (start_on_create)
         {
-            start(0);
+            start_clock(0);
         }
     }
 
     /* begins timing, optionally allowing a relative offset */
-    void start(int offset_ms)
+    void start_clock(int offset_ms)
     {
         m_start_time = Timer::now() - offset_ms;
         m_stopped = false;
     }
 
     /* ends timing */
-    void stop()
+    void stop_clock()
     {
         if (!m_stopped)
         {
@@ -46,9 +46,9 @@ public:
     }
 
     /* resumes timing without resetting the timer */
-    void resume()
+    void resume_clock()
     {
-        start(time_ms());
+        start_clock(clock_ms());
     }
 
     /* returns whether the timer is currently running */
@@ -57,7 +57,7 @@ public:
     /* returns the elapsed time if the timer is running, or
      * the total time between calls to start() and stop() if it is stopped.
      */
-    int time_ms()
+    int clock_ms()
     {
         if (m_stopped)
         {

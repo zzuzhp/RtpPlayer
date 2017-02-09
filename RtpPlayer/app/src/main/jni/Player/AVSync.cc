@@ -13,14 +13,15 @@ AVSync::create_instance()
 AVSync::AVSync() : AVModule(AV_MODULE_TRANSFORMER, "avsync", (int)EVENT_ALL),
                    m_max_latency(1000),
                    m_last_video_ts(0),
-                   m_last_time(-1),
+                   m_video_duration(0),
                    m_state(AVSYNC_BUFFERING),
-                   m_jitter(RTP_VIDEO_CLOCK)
+                   m_jitter(RTP_VIDEO_CLOCK),
+                   m_buffering(false)
 {
     m_avtimer = new AVTimer();
-    m_avtimer->start(0);
+    m_avtimer->start_clock(0);
 
-    m_clock   = m_avtimer;
+    m_clock = m_avtimer;
 }
 
 AVSync::~AVSync()
@@ -67,13 +68,33 @@ AVSync::set_clock(AVClock * clock)
 void
 AVSync::push_video(AVFrame * frame)
 {
-    CProThreadMutexGuard mon(m_lock);
+    {
+        CProThreadMutexGuard mon(m_lock);
 
-    frame->add_ref();
+        frame->add_ref();
 
-    m_video_frames.push_back(frame);
+        if (m_video_frames.size() == 0)
+        {
+            m_buffering = true;
+            RP_LOG_E("start buffering ...");
+        }
 
-    m_jitter.push(frame->get_pts());
+        m_video_frames.push_back(frame);
+
+        m_jitter.push(frame->get_pts());
+    }
+
+    int latency = video_latency_ms();
+
+    {
+        CProThreadMutexGuard mon(m_lock);
+
+        if (m_buffering && latency >= 300)
+        {
+            m_buffering = false;
+            RP_LOG_E("stop buffering.");
+        }
+    }
 }
 
 void
@@ -111,26 +132,33 @@ AVSync::video_frame(AVFrame ** frame)
 {
     CProThreadMutexGuard mon(m_lock);
 
-    if (m_video_frames.empty())
+    if (m_video_frames.empty() || m_buffering)
     {
         *frame = NULL;
         return 1;
     }
 
-    bool      first_frame  = m_last_time < 0;
-    int       time_now     = m_clock->time_ms();
-    AVFrame * video_frame  = m_video_frames.front();
-    uint32_t  duration     = (video_frame->get_pts() - m_last_video_ts) * 1000 / RTP_VIDEO_CLOCK;
+    AVFrame * video_frame = m_video_frames.front();
 
-    if (first_frame ||
-        time_now >= (m_last_time + duration))
+    if (m_video_duration == 0)
+    {
+        m_last_video_ts  = video_frame->get_pts();
+        m_video_duration = 40;
+
+        m_clock->stop_clock();
+        m_clock->start_clock(0);
+    }
+
+    int      time_now = m_clock->clock_ms();
+    uint32_t duration = (video_frame->get_pts() - m_last_video_ts) * 1000 / RTP_VIDEO_CLOCK;
+
+    if (time_now >= m_video_duration + duration)
     {
         m_video_frames.pop_front();
         *frame = video_frame;
 
-        m_last_video_ts = video_frame->get_pts();
-        m_last_time     = time_now;
-
+        m_last_video_ts   = video_frame->get_pts();
+        m_video_duration += duration; ///< always one frame late
         return 0;
     }
 
@@ -143,7 +171,7 @@ AVSync::audio_frame(AVFrame ** frame)
 {
     CProThreadMutexGuard mon(m_lock);
 
-    if (m_audio_frames.empty())
+    if (m_audio_frames.empty() || m_buffering)
     {
         *frame = NULL;
         return 1;

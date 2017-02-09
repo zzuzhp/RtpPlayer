@@ -10,13 +10,13 @@ public:
 
     virtual ~AVClock() {}
 
-    virtual void start(int offset_ms) = 0;
+    virtual void start_clock(int offset_ms = 0) = 0;
 
-    virtual void stop() = 0;
+    virtual void stop_clock() = 0;
 
-    virtual void resume() = 0;
+    virtual void resume_clock() = 0;
 
-    virtual int time_ms() = 0;
+    virtual int clock_ms() = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
