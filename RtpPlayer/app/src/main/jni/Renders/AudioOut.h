@@ -34,7 +34,7 @@ public:
     int time_ms()
     {
         /* this is not accurate if there are lost packets: consider using timestamp */
-        return (int)(render_time() * 1000);
+        return render_time();
     }
 
 private:
@@ -88,6 +88,8 @@ private:
     int                             m_channels;
     int                             m_sample_rate;
 
+    uint32_t                        m_last_pts;
+    uint32_t                        m_last_duration;
     CProThreadMutexCondition        m_cond;
 };
 

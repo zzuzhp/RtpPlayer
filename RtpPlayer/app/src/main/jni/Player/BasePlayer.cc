@@ -24,7 +24,7 @@ BasePlayer::play_time_ms()
 
     if (m_renderer)
     {
-        return (int)(m_renderer->render_time() * 1000);
+        return m_renderer->render_time();
     }
 
     return 0;

@@ -22,7 +22,7 @@ public:
 
     void stop();
 
-    const double render_time() const
+    const int render_time() const
     {
         return m_render_time;
     }
@@ -39,7 +39,7 @@ private:
 
 protected:
 
-    double            m_render_time;
+    int               m_render_time;
 
 private:
 

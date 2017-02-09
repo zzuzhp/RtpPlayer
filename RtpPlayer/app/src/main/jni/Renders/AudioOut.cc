@@ -12,7 +12,9 @@ AudioOut::AudioOut() : AVOutBase(false, "audio renderer"),
                        m_bqPlayerPlay(NULL),
                        m_bqPlayerBufferQueue(NULL),
                        m_channels(0),
-                       m_sample_rate(0)
+                       m_sample_rate(0),
+                       m_last_pts(0),
+                       m_last_duration(0)
 {
 
 }
@@ -51,7 +53,7 @@ AudioOut::init(int sample_rate, int channels)
         }
     }
 
-    m_render_time           = 0.0;
+    m_render_time           = 0;
     m_channels              = channels;
     m_sample_rate           = sample_rate;
     m_currentOutputIndex    = 0;
@@ -145,8 +147,22 @@ AudioOut::on_frame(AVFrame * frame)
         }
     }
 
-    m_currentOutputIndex = index;
-    m_render_time += (double) size / (m_sample_rate * m_channels);
+    uint32_t gap = 0;
+    if (m_render_time == 0)
+    {
+        m_last_pts      = frame->get_pts();
+        m_last_duration = 0;
+    }
+    else
+    {
+        gap = (frame->get_pts() - m_last_pts) * 1000 / frame->get_sample_rate() - m_last_duration;
+    }
+
+    m_render_time += gap + frame->get_audio_duration();
+
+    m_currentOutputIndex    = index;
+    m_last_pts              = frame->get_pts();
+    m_last_duration         = frame->get_audio_duration();
 }
 
 bool

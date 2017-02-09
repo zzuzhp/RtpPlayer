@@ -30,7 +30,7 @@ public:
 
     virtual void stop() = 0;
 
-    virtual const double render_time() const = 0;
+    virtual const int render_time() const = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

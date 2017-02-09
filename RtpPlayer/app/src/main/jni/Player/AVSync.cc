@@ -47,7 +47,6 @@ AVSync::~AVSync()
 void
 AVSync::set_clock(AVClock * clock)
 {
-#if 1
     CProThreadMutexGuard mon(m_lock);
 
     /* use external timer */
@@ -63,7 +62,6 @@ AVSync::set_clock(AVClock * clock)
     }
 
     m_clock = clock;
-#endif
 }
 
 void
@@ -123,8 +121,6 @@ AVSync::video_frame(AVFrame ** frame)
     int       time_now     = m_clock->time_ms();
     AVFrame * video_frame  = m_video_frames.front();
     uint32_t  duration     = (video_frame->get_pts() - m_last_video_ts) * 1000 / RTP_VIDEO_CLOCK;
-
-    ///< int delta = video_latency_ms() / m_max_latency * m_jitter.std_dev();
 
     if (first_frame ||
         time_now >= (m_last_time + duration))
